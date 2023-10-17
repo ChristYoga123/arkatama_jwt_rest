@@ -37,7 +37,7 @@ class Products extends REST_Controller {
      *
      * @return Response
     */
-	public function index_get()
+	public function index_get($id = 0)
 	{
         $headers = $this->input->request_headers(); 
         if (isset($headers['Authorization'])) {
@@ -45,39 +45,24 @@ class Products extends REST_Controller {
             if ($decodedToken['status'])
             {
                 // ------- Main Logic part -------
-                $data = $this->Product_model->all();
-                $final["message"] = "Berhasil mendapatkan seluruh data produk";
-                $final["data"] = $data;
-                $this->response($final, REST_Controller::HTTP_OK);
-                // ------------- End -------------
-            } 
-            else {
-                $this->response($decodedToken);
-            }
-        } else {
-            $final["message"] = "Tidak ada token";
-            $this->response($final, REST_Controller::HTTP_BAD_REQUEST);
-        }
-	}
-
-    public function detail_get($id)
-    {
-        $headers = $this->input->request_headers(); 
-        if (isset($headers['Authorization'])) {
-            $decodedToken = $this->authorization_token->validateToken($headers['Authorization']);
-            if ($decodedToken['status'])
-            {
-                // ------- Main Logic part -------
-                $data = $this->Product_model->show($id);
-                if($data)
-                {
-                    $final["message"] = "Berhasil mendapatkan data product";
+                if(!empty($id)){
+                    $data = $this->Product_model->show($id);
+                    if($data)
+                    {
+                        $final["message"] = "Berhasil mendapatkan data produk";
+                        $final["data"] = $data;
+                        $this->response($final, REST_Controller::HTTP_OK);
+                    } else
+                    {
+                        $final["message"] = "ID tidak ditemukan";
+                        $final["data"] = null;
+                        $this->response($final, REST_Controller::HTTP_NOT_FOUND);
+                    }
+                } else {
+                    $data = $this->Product_model->all();
+                    $final["message"] = "Berhasil mendapatkan seluruh data produk";
                     $final["data"] = $data;
                     $this->response($final, REST_Controller::HTTP_OK);
-                } else{
-                    $final["message"] = "ID tidak ditemukan";
-                    $final["data"] = $data;
-                    $this->response($final, REST_Controller::HTTP_NOT_FOUND);
                 }
                 // ------------- End -------------
             } 
@@ -88,7 +73,7 @@ class Products extends REST_Controller {
             $final["message"] = "Tidak ada token";
             $this->response($final, REST_Controller::HTTP_BAD_REQUEST);
         }
-    }
+	}
       
     /**
      * INSERT | POST method.
