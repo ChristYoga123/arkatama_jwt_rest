@@ -40,7 +40,17 @@ class User_model extends CI_Model {
 		);
 		
 		$this->db->insert('users', $data);
-		return $this->db->insert_id(); 
+		$this->db->select([
+			"id",
+			"username",
+			"email",
+			"avatar"
+		]);
+		$this->db->where("id", $this->db->insert_id());
+		$this->db->from("users");
+		$this->db->limit(1);
+		$data = $this->db->get();
+		return $data->row_array(); 
 		
 	}
 	
