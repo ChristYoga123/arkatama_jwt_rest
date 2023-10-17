@@ -19,7 +19,7 @@
    require APPPATH . '/libraries/REST_Controller.php';
    use Restserver\Libraries\REST_Controller;
      
-class Category extends REST_Controller {
+class Products extends REST_Controller {
     
 	  /**
      * CONSTRUCTOR | LOAD MODEL
@@ -29,7 +29,7 @@ class Category extends REST_Controller {
     public function __construct() {
        parent::__construct();
        $this->load->library('Authorization_Token');	
-       $this->load->model('Category_model');
+       $this->load->model('Product_model');
     }
        
     /**
@@ -45,8 +45,8 @@ class Category extends REST_Controller {
             if ($decodedToken['status'])
             {
                 // ------- Main Logic part -------
-                $data = $this->Category_model->all();
-                $final["message"] = "Berhasil mendapatkan seluruh data kategori";
+                $data = $this->Product_model->all();
+                $final["message"] = "Berhasil mendapatkan seluruh data produk";
                 $final["data"] = $data;
                 $this->response($final, REST_Controller::HTTP_OK);
                 // ------------- End -------------
@@ -68,10 +68,10 @@ class Category extends REST_Controller {
             if ($decodedToken['status'])
             {
                 // ------- Main Logic part -------
-                $data = $this->Category_model->show($id);
+                $data = $this->Product_model->show($id);
                 if($data)
                 {
-                    $final["message"] = "Berhasil mendapatkan seluruh data kategori";
+                    $final["message"] = "Berhasil mendapatkan data product";
                     $final["data"] = $data;
                     $this->response($final, REST_Controller::HTTP_OK);
                 } else{
@@ -104,20 +104,22 @@ class Category extends REST_Controller {
 			$decodedToken = $this->authorization_token->validateToken($headers['Authorization']);
             if ($decodedToken['status'])
             {
-                $data = json_decode(trim(file_get_contents('php://input')), true);
-                $_POST = $data;
                 // set validation rules
-                $this->form_validation->set_rules('category_name', 'Kategori', 'required');                
+                $this->form_validation->set_rules('product_name', 'Nama', 'required');                
+                $this->form_validation->set_rules('category_id', 'Kategori', 'required|numeric');                
+                $this->form_validation->set_rules('price', 'Harga', 'required|numeric');                
+                $this->form_validation->set_rules('quantity', 'Kuantitas', 'required|numeric');                
+                $this->form_validation->set_rules('description', 'Deskripsi', 'required');                
                 if ($this->form_validation->run() == false) {
                     
                     // validation not ok, send validation errors to the view
-                    $final["message"] = "Validasi post kategory gagal";
+                    $final["message"] = "Validasi post produk gagal";
                     $final["error"] = $this->form_validation->error_array();
                     $this->response($final, REST_Controller::HTTP_BAD_REQUEST);
 
                 } else {
                     // ------- Main Logic part -------
-                    $result = $this->Category_model->insert($data);
+                    $result = $this->Product_model->insert($data);
                     $final["message"] = "Post kategori sukses";
                     $final["data"] = $result;
             
@@ -130,7 +132,7 @@ class Category extends REST_Controller {
             }
 		}
 		else {
-			$final["message"] = "Tidak ada token";
+            $final["message"] = "Tidak ada token";
             $this->response($final, REST_Controller::HTTP_BAD_REQUEST);
 		}
     } 
@@ -148,12 +150,12 @@ class Category extends REST_Controller {
             if ($decodedToken['status'])
             {
                 // ------- Main Logic part -------
-                $res = $this->Category_model->show($id);
+                $res = $this->Product_model->show($id);
                 if($res)
                 {
                     $data = $this->put();
-                    $result = $this->Category_model->update($data, $id);
-                    $final["message"] = "Update kategori sukses";
+                    $result = $this->Product_model->update($data, $id);
+                    $final["message"] = "Update produk sukses";
                     $final["data"] = $result;
             
                     $this->response($final, REST_Controller::HTTP_OK);
@@ -190,11 +192,11 @@ class Category extends REST_Controller {
             if ($decodedToken['status'])
             {
                 // ------- Main Logic part -------
-                $res = $this->Category_model->show($id);
+                $res = $this->Product_model->show($id);
                 if($res)
                 {
-                    $this->Category_model->delete($id);
-                    $final["message"] = "Delete kategori sukses";
+                    $this->Product_model->delete($id);
+                    $final["message"] = "Delete produk sukses";
                     $this->response($final, REST_Controller::HTTP_OK);
                 } else 
                 {
@@ -204,7 +206,6 @@ class Category extends REST_Controller {
                     $this->response($final, REST_Controller::HTTP_NOT_FOUND);
                 }
                 // ------------- End -------------
-                
             }
             else {
                 $this->response($decodedToken);
