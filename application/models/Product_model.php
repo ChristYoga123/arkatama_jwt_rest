@@ -11,18 +11,20 @@ class Product_model extends CI_Model {
        $this->load->database();
     }
 
+    public function all()
+    {
+        $data = $this->db->get("products");
+        return $data->result();
+    }
+
     /**
      * SHOW | GET method.
      *
      * @return Response
     */
-	public function show($id = 0)
+	public function show($id)
 	{
-        if(!empty($id)){
-            $query = $this->db->get_where("products", ['id' => $id])->row_array();
-        }else{
-            $query = $this->db->get("products")->result();
-        }
+        $query = $this->db->get_where("products", ['product_id' => $id])->row_array();
         return $query;
 	}
       
@@ -34,7 +36,8 @@ class Product_model extends CI_Model {
     public function insert($data)
     {
         $this->db->insert('products',$data);
-        return $this->db->insert_id(); 
+        $data = $this->db->get_where("products", ["product_id" => $this->db->insert_id()])->row_array();
+        return $data; 
     } 
      
     /**
@@ -44,9 +47,10 @@ class Product_model extends CI_Model {
     */
     public function update($data, $id)
     {
-        $data = $this->db->update('products', $data, array('id'=>$id));
+        $data = $this->db->update('products', $data, array('product_id' => $id));
         //echo $this->db->last_query();
-		return $this->db->affected_rows();
+		$data = $this->db->get_where("products", ["product_id" => $id])->row_array();
+        return $data;
     }
      
     /**
@@ -56,7 +60,7 @@ class Product_model extends CI_Model {
     */
     public function delete($id)
     {
-        $this->db->delete('products', array('id'=>$id));
+        $this->db->delete('products', array('product_id'=>$id));
         return $this->db->affected_rows();
     }
 }
